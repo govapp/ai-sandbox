@@ -2,7 +2,13 @@
 
 A containerized environment for running AI coding tools (Claude Code, OpenCode) with access to your local development setup.
 
-## Build
+## Pull
+
+```bash
+docker pull ghcr.io/govapp/ai-sandbox:latest
+```
+
+## Build (from source)
 
 ```bash
 docker build -t ai-sandbox .
