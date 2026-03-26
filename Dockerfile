@@ -1,0 +1,50 @@
+FROM nixos/nix
+
+# Replace /etc symlinks with real files (nixos/nix symlinks these into the
+# nix store, which breaks under --read-only due to "path escapes from parent")
+RUN for f in /etc/group /etc/passwd /etc/shadow; do \
+      [ -L "$f" ] && cp --remove-destination "$(readlink -f "$f")" "$f"; \
+    done
+
+# Enable flakes and configure numtide binary cache
+RUN echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf \
+ && echo "extra-substituters = https://cache.numtide.com" >> /etc/nix/nix.conf \
+ && echo "extra-trusted-public-keys = niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=" >> /etc/nix/nix.conf
+
+# Copy flake definition and install all packages
+COPY flake.nix /tmp/sandbox-env/
+RUN cd /tmp/sandbox-env \
+ && nix flake lock \
+ && nix profile install . \
+ && nix-collect-garbage -d \
+ && rm -rf /tmp/sandbox-env
+
+# Point direnv config to a writable location; use DIRENV_CONFIG to avoid
+# overriding XDG_CONFIG_HOME globally (which breaks nix and other tools).
+ENV DIRENV_CONFIG=/tmp/direnv/config
+ENV XDG_DATA_HOME=/tmp/direnv/data
+ENV XDG_CACHE_HOME=/tmp/cache
+
+# Configure direnv for interactive shells
+RUN echo 'eval "$(direnv hook bash)"' >> /root/.bashrc \
+ && echo 'source $HOME/.nix-profile/share/nix-direnv/direnvrc' >> /root/.bashrc
+
+# Pre-create credential directories for volume mounts.
+RUN mkdir -p /root/.claude \
+    /root/.config/opencode \
+    /root/.local/share/opencode \
+    /root/.codex \
+    /root/.gemini \
+    /root/.ssh
+
+# Entrypoint wrapper: activates direnv for non-interactive commands too
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
+# Allow Claude Code to use --dangerously-skip-permissions in sandbox.
+ENV IS_SANDBOX=1
+
+WORKDIR /workspace
+
+CMD ["sleep", "infinity"]
