@@ -40,6 +40,7 @@
           pkgs.python3
           pkgs.unzip
           pkgs.vim
+          pkgs.chromium
 
           # Direnv support
           pkgs.direnv
