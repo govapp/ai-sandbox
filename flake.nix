@@ -26,6 +26,23 @@
             "Bash(rm -rf /*)" \
           "$@"
       '';
+
+      # Headless Chromium needs fontconfig to find fonts. Without them it
+      # renders every glyph at 0x0px, which silently breaks Playwright
+      # visibility assertions (the DOM node exists but has no height).
+      fonts = with pkgs; [
+        dejavu_fonts
+        liberation_ttf
+        noto-fonts
+        noto-fonts-color-emoji
+      ];
+      fontsConf = pkgs.makeFontsConf { fontDirectories = fonts; };
+      # Expose the generated fonts.conf at a stable path inside the profile
+      # so FONTCONFIG_FILE in the container can point at it.
+      fontsConfPkg = pkgs.runCommand "sandbox-fonts-conf" { } ''
+        mkdir -p $out/etc/fonts
+        cp ${fontsConf} $out/etc/fonts/fonts.conf
+      '';
     in {
       packages.${system}.default = pkgs.buildEnv {
         name = "ai-sandbox-env";
@@ -42,6 +59,10 @@
           pkgs.vim
           pkgs.chromium
 
+          # Fontconfig + fonts for headless Chromium text rendering.
+          pkgs.fontconfig
+          fontsConfPkg
+
           # Direnv support
           pkgs.direnv
           pkgs.nix-direnv
@@ -53,7 +74,7 @@
 
           # Convenience wrapper
           claude-sandbox
-        ];
+        ] ++ fonts;
       };
     };
 }

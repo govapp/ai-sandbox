@@ -20,6 +20,7 @@ docker build -t ai-sandbox .
 docker run -d --name ai-sandbox \
   --read-only \
   --tmpfs /tmp \
+  --shm-size=2g \
   -v nix-store:/nix \
   -v "$HOME/dev/govapp:$HOME/dev/govapp" \
   -v "$HOME/.claude:/root/.claude" \
