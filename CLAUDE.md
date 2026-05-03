@@ -18,6 +18,15 @@ docker pull ghcr.io/govapp/ai-sandbox:latest
 
 There are no lint or test commands — validation is done by building and running the container.
 
+## `flake.lock`
+
+`flake.lock` is committed to the repository and must be kept in sync with `flake.nix`. The Dockerfile COPYs both files; changing `flake.lock` is what invalidates the Docker layer cache for the `nix profile install` step. The weekly scheduled rebuild (`scheduled-rebuild.yml`) runs `nix flake update`, commits the new lock with `[skip ci]`, then builds the image — so packages are refreshed weekly without manual intervention.
+
+To manually refresh the lock locally:
+```bash
+nix --extra-experimental-features "nix-command flakes" flake update
+```
+
 ## Architecture
 
 The project has three main files:

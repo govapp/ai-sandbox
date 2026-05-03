@@ -11,10 +11,11 @@ RUN echo "experimental-features = nix-command flakes" >> /etc/nix/nix.conf \
  && echo "extra-substituters = https://cache.numtide.com" >> /etc/nix/nix.conf \
  && echo "extra-trusted-public-keys = niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g=" >> /etc/nix/nix.conf
 
-# Copy flake definition and install all packages
-COPY flake.nix /tmp/sandbox-env/
+# Copy flake definition and install all packages.
+# flake.lock is committed and updated weekly so this layer is invalidated
+# whenever packages change, even when flake.nix itself is unchanged.
+COPY flake.nix flake.lock /tmp/sandbox-env/
 RUN cd /tmp/sandbox-env \
- && nix flake lock \
  && nix profile install . \
  && nix-collect-garbage -d \
  && rm -rf /tmp/sandbox-env
