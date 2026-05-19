@@ -67,6 +67,11 @@
           pkgs.direnv
           pkgs.nix-direnv
 
+          # tmux client so in-container Claude Code hooks (e.g.
+          # tmux-agent-sidebar) can update pane options on the host's
+          # tmux server via the bind-mounted socket.
+          pkgs.tmux
+
           # AI tools from llm-agents.nix
           llm.claude-code
           llm.claude-plugins
