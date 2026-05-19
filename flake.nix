@@ -27,19 +27,6 @@
           "$@"
       '';
 
-      # Delegate to the bundled cmux CLI that cmux ssh deploys to
-      # ~/.cmux/bin/cmux on the remote host (exported as CMUX_BUNDLED_CLI_PATH
-      # in the host shell). dons-claude bind-mounts $HOME/.cmux into the
-      # container at the same path, so this shim Just Works under cmux ssh.
-      cmux-shim = pkgs.writeShellScriptBin "cmux" ''
-        BIN="''${CMUX_BUNDLED_CLI_PATH:-$HOME/.cmux/bin/cmux}"
-        if [ ! -x "$BIN" ]; then
-          echo "cmux: $BIN not found. Connect from a cmux ssh session so cmux deploys its CLI to ~/.cmux/bin/." >&2
-          exit 1
-        fi
-        exec "$BIN" "$@"
-      '';
-
       # Headless Chromium needs fontconfig to find fonts. Without them it
       # renders every glyph at 0x0px, which silently breaks Playwright
       # visibility assertions (the DOM node exists but has no height).
@@ -87,9 +74,6 @@
 
           # Convenience wrapper
           claude-sandbox
-
-          # cmux CLI shim (resolves against host-mounted ~/.cmux)
-          cmux-shim
         ] ++ fonts;
       };
     };
