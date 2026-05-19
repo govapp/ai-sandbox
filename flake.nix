@@ -27,21 +27,14 @@
           "$@"
       '';
 
-      # Shim that delegates to the cmuxd-remote binary cmux uploads to
-      # ~/.cmux/bin/cmuxd-remote/<version>/<os>-<arch>/cmuxd-remote on the host.
-      # dons-claude bind-mounts $HOME/.cmux into the container so this shim
-      # works without baking a cmux version into the image.
+      # Delegate to the bundled cmux CLI that cmux ssh deploys to
+      # ~/.cmux/bin/cmux on the remote host (exported as CMUX_BUNDLED_CLI_PATH
+      # in the host shell). dons-claude bind-mounts $HOME/.cmux into the
+      # container at the same path, so this shim Just Works under cmux ssh.
       cmux-shim = pkgs.writeShellScriptBin "cmux" ''
-        set -e
-        CMUX_BIN_DIR="''${HOME}/.cmux/bin/cmuxd-remote"
-        if [ ! -d "$CMUX_BIN_DIR" ]; then
-          echo "cmux: $CMUX_BIN_DIR not found. Connect via 'cmux ssh' first so cmux uploads the daemon, or mount your host ~/.cmux into the container." >&2
-          exit 1
-        fi
-        VERSION_DIR="$(ls -1 "$CMUX_BIN_DIR" 2>/dev/null | sort -V | tail -n1)"
-        BIN="$CMUX_BIN_DIR/$VERSION_DIR/linux-x86_64/cmuxd-remote"
+        BIN="''${CMUX_BUNDLED_CLI_PATH:-$HOME/.cmux/bin/cmux}"
         if [ ! -x "$BIN" ]; then
-          echo "cmux: binary not found at $BIN" >&2
+          echo "cmux: $BIN not found. Connect from a cmux ssh session so cmux deploys its CLI to ~/.cmux/bin/." >&2
           exit 1
         fi
         exec "$BIN" "$@"
