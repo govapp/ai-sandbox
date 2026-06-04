@@ -44,6 +44,11 @@ if _claude_needs_update; then
 fi
 # --- end auto-update ---
 
+# agent-browser's home (~/.agent-browser, symlinked to here in the image) holds
+# its daemon socket/state and the Chromium user-data-dir. Create it on tmpfs so
+# the read-only root doesn't block browser launches.
+mkdir -p /tmp/agent-browser
+
 # Set up direnv directories in a writable location
 DIRENV_TMP="/tmp/direnv"
 mkdir -p "${DIRENV_TMP}/config" "${DIRENV_TMP}/data"

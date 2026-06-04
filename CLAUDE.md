@@ -32,8 +32,8 @@ nix --extra-experimental-features "nix-command flakes" flake update
 The project has three main files:
 
 - **`Dockerfile`** — Multi-stage build on `nixos/nix` base. Installs all packages from `flake.nix`, configures fontconfig for headless Chromium, sets `IS_SANDBOX=1`, and pre-creates credential directories.
-- **`flake.nix`** — Nix flake declaring all installed packages (gh, ripgrep, chromium, claude-code, opencode, fonts, etc.) and defines a `claude-sandbox` wrapper script that sets Claude's permission mode and allowed tools.
-- **`entrypoint.sh`** — Bootstraps direnv (moves its data dirs to `/tmp` due to read-only root), whitelists `/workspace` and `/home` in direnv, and loads `.envrc` from the workspace.
+- **`flake.nix`** — Nix flake declaring all installed packages (gh, ripgrep, chromium, claude-code, opencode, agent-browser, fonts, etc.) and defines a `claude-sandbox` wrapper script that sets Claude's permission mode and allowed tools.
+- **`entrypoint.sh`** — Bootstraps direnv (moves its data dirs to `/tmp` due to read-only root), creates `/tmp/agent-browser` (where `~/.agent-browser` is symlinked, so the browser daemon/profile dir is writable), whitelists `/workspace` and `/home` in direnv, and loads `.envrc` from the workspace.
 
 ## Key Design Constraints
 

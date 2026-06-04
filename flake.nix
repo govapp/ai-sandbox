@@ -28,8 +28,9 @@
       '';
 
       # Headless Chromium needs fontconfig to find fonts. Without them it
-      # renders every glyph at 0x0px, which silently breaks Playwright
-      # visibility assertions (the DOM node exists but has no height).
+      # renders every glyph at 0x0px, which silently breaks visibility
+      # assertions (the DOM node exists but has no height) for both
+      # agent-browser and client-repo Playwright e2e suites.
       fonts = with pkgs; [
         dejavu_fonts
         liberation_ttf
@@ -76,6 +77,13 @@
           llm.claude-code
           llm.claude-plugins
           llm.opencode
+
+          # Browser automation CLI for AI agents. Its Nix wrapper sets
+          # AGENT_BROWSER_EXECUTABLE_PATH to its own chromium closure, so no
+          # extra browser wiring is needed. `agent-browser skills get core`
+          # serves version-matched usage docs the govtech agent-browser skill
+          # points agents at.
+          llm.agent-browser
 
           # Convenience wrapper
           claude-sandbox

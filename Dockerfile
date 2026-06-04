@@ -38,6 +38,12 @@ RUN mkdir -p /root/.claude \
     /root/.gemini \
     /root/.ssh
 
+# agent-browser writes its daemon state, sessions, and the Chromium
+# user-data-dir under ~/.agent-browser. The root filesystem is read-only at
+# runtime, so redirect that path to tmpfs /tmp (the entrypoint creates the
+# target). The symlink itself is baked into the read-only image layer.
+RUN ln -s /tmp/agent-browser /root/.agent-browser
+
 # Entrypoint wrapper: activates direnv for non-interactive commands too
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
