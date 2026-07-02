@@ -3,10 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
-    # Pinned to the 2026-05-31 rev (claude-code 2.1.158) to stay before the
-    # ~2.1.167 regression that broke OAuth refresh-on-401 (forces /login every
-    # ~8h in long-running sandbox sessions). Unpin once upstream re-fixes it.
-    llm-agents.url = "github:numtide/llm-agents.nix/2296793afdc076c2fd495ac21b914c26a9f2bf0e";
+    llm-agents.url = "github:numtide/llm-agents.nix";
   };
 
   outputs = { self, nixpkgs, llm-agents }:
