@@ -20,7 +20,7 @@ There are no lint or test commands — validation is done by building and runnin
 
 ## `flake.lock`
 
-`flake.lock` is committed to the repository and must be kept in sync with `flake.nix`. The Dockerfile COPYs both files; changing `flake.lock` is what invalidates the Docker layer cache for the `nix profile install` step. The weekly scheduled rebuild (`scheduled-rebuild.yml`) runs `nix flake update`, commits the new lock with `[skip ci]`, then builds the image — so packages are refreshed weekly without manual intervention.
+`flake.lock` is committed to the repository and must be kept in sync with `flake.nix`. The Dockerfile COPYs both files; changing `flake.lock` is what invalidates the Docker layer cache for the `nix profile install` step. The weekly scheduled rebuild (`scheduled-rebuild.yml`) runs `nix flake update`, builds and pushes the image, and only then commits the new lock with `[skip ci]` — so a lock that fails to build never lands on `main`, and packages are refreshed weekly without manual intervention.
 
 To manually refresh the lock locally:
 ```bash

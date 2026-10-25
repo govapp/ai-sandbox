@@ -20,13 +20,12 @@ set -e
 #     unused. Verified across three live containers: exec resolved 2.1.278
 #     while the updater had installed 2.1.283.
 #
-# claude-code is pinned in flake.nix (llm.claude-code) together with
-# claude-plugins and the claude-sandbox wrapper, and
-# .github/workflows/scheduled-rebuild.yml refreshes flake.lock and rebuilds
-# weekly. Bump the version there — shorten that cron if the image goes stale.
-# A runtime updater would also have to reach exec sessions (Dockerfile ENV or
-# /root/.bashrc) and would desync claude-code from the plugins and wrapper the
-# flake pins alongside it.
+# claude-code is pinned in flake.nix (llm.claude-code) together with the
+# claude-sandbox wrapper, and .github/workflows/scheduled-rebuild.yml refreshes
+# flake.lock and rebuilds weekly. Bump the version there — shorten that cron if
+# the image goes stale. A runtime updater would also have to reach exec
+# sessions (Dockerfile ENV or /root/.bashrc) and would desync claude-code from
+# the wrapper the flake pins alongside it.
 
 # agent-browser's home (~/.agent-browser, symlinked to here in the image) holds
 # its daemon socket/state and the Chromium user-data-dir. Create it on tmpfs so
