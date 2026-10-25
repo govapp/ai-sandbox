@@ -55,6 +55,8 @@
           pkgs.fzf
           pkgs.gnupg
           pkgs.ripgrep
+          pkgs.gawk
+          pkgs.gnused
           pkgs.python3
           pkgs.unzip
           pkgs.vim
