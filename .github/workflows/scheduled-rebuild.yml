@@ -23,14 +23,6 @@ jobs:
       - name: Update flake.lock
         run: nix flake update
 
-      - name: Commit updated flake.lock
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add flake.lock
-          git diff --cached --quiet || git commit -m "chore: update flake.lock [skip ci]"
-          git push
-
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -47,3 +39,14 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:weekly-${{ github.run_id }}
+
+      # Commit the lock only after the image built from it succeeded, so an
+      # upstream break (e.g. a package removed from llm-agents.nix) fails this
+      # run without landing an unbuildable flake.lock on main.
+      - name: Commit updated flake.lock
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add flake.lock
+          git diff --cached --quiet || git commit -m "chore: update flake.lock [skip ci]"
+          git push

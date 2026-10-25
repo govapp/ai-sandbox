@@ -77,7 +77,6 @@
 
           # AI tools from llm-agents.nix
           llm.claude-code
-          llm.claude-plugins
           llm.opencode
 
           # Browser automation CLI for AI agents. Its Nix wrapper sets
