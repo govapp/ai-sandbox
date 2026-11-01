@@ -27,6 +27,27 @@
           "$@"
       '';
 
+      # claude-sandbox's tool rules as a settings file, for the ACP server
+      # below. Passed with --settings, so they add to ~/.claude/settings.json
+      # (shared with the host) without being written into it.
+      claudeSandboxSettings = pkgs.writeText "claude-sandbox-settings.json" (builtins.toJSON {
+        permissions = {
+          allow = [ "Read" "Edit" "Write" "MultiEdit" "Glob" "Grep" "LS" "Task" "WebFetch" "WebSearch" "Bash" ];
+          deny = [ "Bash(sudo:*)" "Bash(su:*)" "Bash(rm -rf /)" "Bash(rm -rf /*)" ];
+        };
+      });
+      claude-acp-cli = pkgs.writeShellScript "claude-acp-cli" ''
+        exec ${llm.claude-code}/bin/claude --settings ${claudeSandboxSettings} "$@"
+      '';
+      # Agent Client Protocol server for editors: CodeCompanion in nvim
+      # reaches it through `dons-claude --acp`. claude-agent-acp drives the
+      # claude CLI named by CLAUDE_CODE_EXECUTABLE; the editor picks the
+      # permission mode.
+      claude-acp = pkgs.writeShellScriptBin "claude-acp" ''
+        export CLAUDE_CODE_EXECUTABLE=${claude-acp-cli}
+        exec ${llm.claude-agent-acp}/bin/claude-agent-acp "$@"
+      '';
+
       # Headless Chromium needs fontconfig to find fonts. Without them it
       # renders every glyph at 0x0px, which silently breaks visibility
       # assertions (the DOM node exists but has no height) for both
@@ -88,6 +109,9 @@
 
           # Convenience wrapper
           claude-sandbox
+
+          # ACP server for editors (CodeCompanion in nvim)
+          claude-acp
         ] ++ fonts;
       };
     };
